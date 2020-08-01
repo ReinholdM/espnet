@@ -1,3 +1,4 @@
+from distutils.version import LooseVersion
 import logging
 
 import numpy as np
@@ -22,8 +23,11 @@ class CTC(torch.nn.Module):
         self.dropout_rate = dropout_rate
         self.loss = None
         self.ctc_lo = torch.nn.Linear(eprojs, odim)
-        self.ctc_type = ctc_type
 
+        # In case of Pytorch >= 1.2.0, CTC will be always builtin
+        self.ctc_type = ctc_type if LooseVersion(torch.__version__) < LooseVersion('1.2.0') else 'builtin'
+        if ctc_type != self.ctc_type:
+            logging.warning(f'CTC was set to {self.ctc_type} due to PyTorch version.')
         if self.ctc_type == 'builtin':
             reduction_type = 'sum' if reduce else 'none'
             self.ctc_loss = torch.nn.CTCLoss(reduction=reduction_type)
@@ -62,18 +66,31 @@ class CTC(torch.nn.Module):
         :rtype: torch.Tensor
         """
         # TODO(kan-bayashi): need to make more smart way
-        ys = [y[y != self.ignore_id] for y in ys_pad]  # parse padded ys
-
+        
+        if hlens.shape != torch.Size([]):
+            ys = [y[y != self.ignore_id] for y in ys_pad]  # parse padded ys
+        else:
+            ys = ys_pad
+        logging.info("ys  shape"+ str(len(ys)))
+        logging.info("hs_pad  shape"+ str(hs_pad.shape))
+        
         self.loss = None
-        hlens = torch.from_numpy(np.fromiter(hlens, dtype=np.int32))
-        olens = torch.from_numpy(np.fromiter(
-            (x.size(0) for x in ys), dtype=np.int32))
-
+        if hlens.shape != torch.Size([]):
+            hlens = torch.from_numpy(np.fromiter(hlens, dtype=np.int32))
+            olens = torch.from_numpy(np.fromiter(
+                (x.size(0) for x in ys), dtype=np.int32))
+        else:
+            hlens = torch.from_numpy(np.array(hlens))
+            olens = torch.from_numpy(np.array([len(ys)]))
         # zero padding for hs
         ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
-
+        logging.info("ys_hat shape" + str(ys_hat.shape))
         # zero padding for ys
-        ys_true = torch.cat(ys).cpu().int()  # batch x olen
+        if hlens.shape != torch.Size([]):
+            ys_true = torch.cat(ys).cpu().int()  # batch x olen
+        else:
+            ys_true = ys.cpu().int()
+        logging.info("ys_true shape"+" "+str(ys_true.shape))
 
         # get length info
         logging.info(self.__class__.__name__ + ' input lengths:  ' + ''.join(str(hlens).split('\n')))

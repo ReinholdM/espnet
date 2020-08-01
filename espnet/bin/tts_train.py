@@ -6,16 +6,10 @@
 """Text-to-speech model training script."""
 
 import logging
-import multiprocessing as mp
 import os
 import random
 import subprocess
 import sys
-
-if "/home/espnet" in sys.path:
-    sys.path.remove("/home/espnet")
-ESPNET_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
-sys.path.insert(0, ESPNET_ROOT)
 
 import configargparse
 import numpy as np
@@ -128,6 +122,20 @@ def get_parser():
                         help='Number of samples of attention to be saved')
     parser.add_argument('--keep-all-data-on-mem', default=False, type=strtobool,
                         help='Whether to keep all data on memory')
+    # finetuning related
+    parser.add_argument('--enc-init', default=None, type=str,
+                        help='Pre-trained TTS model path to initialize encoder.')
+    parser.add_argument('--enc-init-mods', default='enc.',
+                        type=lambda s: [str(mod) for mod in s.split(',') if s != ''],
+                        help='List of encoder modules to initialize, separated by a comma.')
+    parser.add_argument('--dec-init', default=None, type=str,
+                        help='Pre-trained TTS model path to initialize decoder.')
+    parser.add_argument('--dec-init-mods', default='dec.',
+                        type=lambda s: [str(mod) for mod in s.split(',') if s != ''],
+                        help='List of decoder modules to initialize, separated by a comma.')
+    parser.add_argument('--freeze-mods', default=None,
+                        type=lambda s: [str(mod) for mod in s.split(',') if s != ''],
+                        help='List of modules to freeze (not to train), separated by a comma.')
 
     return parser
 
@@ -170,6 +178,7 @@ def main(cmd_args):
                 ngpu = 0
             else:
                 ngpu = len(p.stderr.decode().split('\n')) - 1
+        args.ngpu = ngpu
     else:
         ngpu = args.ngpu
     logging.info(f"ngpu: {ngpu}")
@@ -187,10 +196,4 @@ def main(cmd_args):
 
 
 if __name__ == "__main__":
-    # NOTE(kan-bayashi): setting multiple times causes RuntimeError
-    #   See also https://github.com/pytorch/pytorch/issues/3492
-    try:
-        mp.set_start_method('spawn')
-    except RuntimeError:
-        pass
     main(sys.argv[1:])

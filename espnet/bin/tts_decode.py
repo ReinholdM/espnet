@@ -12,10 +12,7 @@ import platform
 import subprocess
 import sys
 
-if "/home/espnet" in sys.path:
-    sys.path.remove("/home/espnet")
-ESPNET_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
-sys.path.insert(0, ESPNET_ROOT)
+from espnet.utils.cli_utils import strtobool
 
 
 # NOTE: you need this func to generate our sphinx doc
@@ -61,6 +58,17 @@ def get_parser():
                         help='Minimum length ratio in decoding')
     parser.add_argument('--threshold', type=float, default=0.5,
                         help='Threshold value in decoding')
+    parser.add_argument('--use-att-constraint', type=strtobool, default=False,
+                        help='Whether to use the attention constraint')
+    parser.add_argument('--backward-window', type=int, default=1,
+                        help='Backward window size in the attention constraint')
+    parser.add_argument('--forward-window', type=int, default=3,
+                        help='Forward window size in the attention constraint')
+    # save related
+    parser.add_argument('--save-durations', default=False, type=strtobool,
+                        help='Whether to save durations converted from attentions')
+    parser.add_argument('--save-focus-rates', default=False, type=strtobool,
+                        help='Whether to save focus rates of attentions')
     return parser
 
 

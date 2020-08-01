@@ -91,6 +91,7 @@ class PlotAttentionReport(extension.Extension):
         ikey (str): Key to access input (for ASR ikey="input", for MT ikey="output".)
         iaxis (int): Dimension to access input (for ASR iaxis=0, for MT iaxis=1.)
         okey (str): Key to access output (for ASR okey="input", MT okay="output".)
+        oaxis (int): Dimension to access output (for ASR oaxis=0, for MT oaxis=0.)
 
     """
 
@@ -316,6 +317,37 @@ def _adadelta_eps_decay(trainer, eps_decay):
             logging.info('adadelta eps decayed to ' + str(p["eps"]))
 
 
+def adam_lr_decay(eps_decay):
+    """Extension to perform adam lr decay.
+
+    Args:
+        eps_decay (float): Decay rate of lr.
+
+    Returns:
+        An extension function.
+
+    """
+    @training.make_extension(trigger=(1, 'epoch'))
+    def adam_lr_decay(trainer):
+        _adam_lr_decay(trainer, eps_decay)
+
+    return adam_lr_decay
+
+
+def _adam_lr_decay(trainer, eps_decay):
+    optimizer = trainer.updater.get_optimizer('main')
+    # for chainer
+    if hasattr(optimizer, 'lr'):
+        current_lr = optimizer.lr
+        setattr(optimizer, 'lr', current_lr * eps_decay)
+        logging.info('adam lr decayed to ' + str(optimizer.lr))
+    # pytorch
+    else:
+        for p in optimizer.param_groups:
+            p["lr"] *= eps_decay
+            logging.info('adam lr decayed to ' + str(p["lr"]))
+
+
 def torch_snapshot(savefun=torch.save,
                    filename='snapshot.ep.{.updater.epoch}'):
     """Extension to take snapshot of the trainer for pytorch.
@@ -424,7 +456,7 @@ def chainer_load(path, model):
         model (chainer.Chain): Chainer model.
 
     """
-    if 'snapshot' in path:
+    if 'snapshot' in os.path.basename(path):
         chainer.serializers.load_npz(path, model, path='updater/model:main/')
     else:
         chainer.serializers.load_npz(path, model)
@@ -474,7 +506,7 @@ def torch_load(path, model):
         model (torch.nn.Module): Torch model.
 
     """
-    if 'snapshot' in path:
+    if 'snapshot' in os.path.basename(path):
         model_state_dict = torch.load(path, map_location=lambda storage, loc: storage)['model']
     else:
         model_state_dict = torch.load(path, map_location=lambda storage, loc: storage)
