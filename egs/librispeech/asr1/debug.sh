@@ -3,6 +3,8 @@
 
 # general configuration
 backend=pytorch
+stage=-1       # start from -1 if you need to start from data download
+stop_stage=100
 ngpu=4         # number of gpus ("0" uses cpu, otherwise use gpu)
 nj=32
 debugmode=1
@@ -13,7 +15,7 @@ resume=        # Resume the training from snapshot
 # feature configuration
 do_delta=false
 
-preprocess_config=conf/specaug.yaml
+#preprocess_config=conf/specaug.yaml
 train_config=conf/train.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
@@ -44,7 +46,7 @@ nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh" # tag for managing experiments.
+tag="lh_without_specaug" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
@@ -106,4 +108,3 @@ ${cuda_cmd} --gpu ${ngpu} ${expdir}/train.log \
     --resume ${resume} \
     --train-json ${feat_tr_dir}/data_${bpemode}${nbpe}.json \
     --valid-json ${feat_dt_dir}/data_${bpemode}${nbpe}.json
-
