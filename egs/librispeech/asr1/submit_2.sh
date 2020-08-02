@@ -92,7 +92,7 @@ nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh" # tag for managing experiments.
+tag="lh_nospec" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
