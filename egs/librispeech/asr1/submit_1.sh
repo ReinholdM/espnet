@@ -56,7 +56,6 @@ debugmode=1
 N=0            # number of minibatches to be used (mainly for debugging). "0" uses all minibatches.
 verbose=0      # verbose option
 resume=        # Resume the training from snapshot
-dumpdir=dump   # directory to dump full features
 
 # feature configuration
 do_delta=false

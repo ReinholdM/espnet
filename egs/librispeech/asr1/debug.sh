@@ -9,7 +9,6 @@ debugmode=1
 N=0            # number of minibatches to be used (mainly for debugging). "0" uses all minibatches.
 verbose=0      # verbose option
 resume=        # Resume the training from snapshot
-dumpdir=dump   # directory to dump full features
 
 # feature configuration
 do_delta=false
@@ -36,7 +35,7 @@ use_valbest_average=true     # if true, the validation `n_average`-best ASR mode
 # someone else has already put it.  You'll want to change this
 # if you're not on the CLSP grid.
 datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
-dumpdir=${datapredix}/${dumpdir}
+dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
 
 
