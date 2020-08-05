@@ -55,7 +55,6 @@ nj=32
 debugmode=1
 N=0            # number of minibatches to be used (mainly for debugging). "0" uses all minibatches.
 verbose=0      # verbose option
-resume=        # Resume the training from snapshot
 
 # feature configuration
 do_delta=false
@@ -109,6 +108,8 @@ feat_dt_dir=${dumpdir}/${train_dev}/delta${do_delta}
 
 dict=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
+
+resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec       # Resume the training from snapshot
 
 
 expname=${train_set}_${backend}_${tag}

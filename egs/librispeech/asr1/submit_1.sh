@@ -55,7 +55,6 @@ nj=32
 debugmode=1
 N=0            # number of minibatches to be used (mainly for debugging). "0" uses all minibatches.
 verbose=0      # verbose option
-resume=        # Resume the training from snapshot
 
 # feature configuration
 do_delta=false
@@ -84,6 +83,9 @@ use_valbest_average=true     # if true, the validation `n_average`-best ASR mode
 datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
+
+resume=${exp_prefix}/exp/train_960_pytorch_lh       # Resume the training from snapshot
+
 
 
 # bpemode (unigram or bpe)
