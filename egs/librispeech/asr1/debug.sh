@@ -10,13 +10,11 @@ nj=32
 debugmode=1
 N=0            # number of minibatches to be used (mainly for debugging). "0" uses all minibatches.
 verbose=0      # verbose option
-resume=        # Resume the training from snapshot
 
 # feature configuration
 do_delta=false
 
-#preprocess_config=conf/specaug.yaml
-preprocess_config=conf/no_preprocess.yaml  # use conf/specaug.yaml for data augmentation
+preprocess_config=conf/specaug.yaml
 train_config=conf/train.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
@@ -41,13 +39,16 @@ datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
 
+resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
+
+
 
 # bpemode (unigram or bpe)
 nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh_nospec" # tag for managing experiments.
+tag="lh" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
@@ -72,6 +73,13 @@ expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
 mkdir -p ${expdir}
 
+
+lmexpname=train_rnnlm_pytorch_lm_transformer_cosine_batchsize32_lr1e-4_layer16_unigram5000_ngpu4
+lmexpdir=/blob/v-jinx/checkpoint_asr_nas/exp/${lmexpname}
+mkdir -p ${lmexpdir}
+lm_n_average=6               # the number of languge models to be averaged
+use_lm_valbest_average=false # if true, the validation `lm_n_average`-best language models will be averaged.
+
 echo 'exp_dir'
 echo ${expdir}
 
@@ -93,19 +101,55 @@ echo ${nbpe}
 echo ${feat_tr_dir}
 echo ${feat_dt_dir}
 
-${cuda_cmd} --gpu ${ngpu} ${expdir}/train.log \
-    asr_train_custom.py \
-    --config ${train_config} \
-    --preprocess-conf ${preprocess_config} \
-    --ngpu ${ngpu} \
-    --backend ${backend} \
-    --outdir ${expdir}/results \
-    --tensorboard-dir ${exp_prefix}/tensorboard/${expname} \
-    --debugmode ${debugmode} \
-    --dict ${dict} \
-    --debugdir ${expdir} \
-    --minibatches ${N} \
-    --verbose ${verbose} \
-    --resume ${resume} \
-    --train-json ${feat_tr_dir}/data_${bpemode}${nbpe}.json \
-    --valid-json ${feat_dt_dir}/data_${bpemode}${nbpe}.json
+echo "stage 5: Decoding"
+if [[ $(get_yaml.py ${train_config} model-module) = *transformer* ]]; then
+    # Average ASR models
+    if ${use_valbest_average}; then
+        recog_model=model.val${n_average}.avg.best
+        opt="--log ${expdir}/results/log"
+    else
+        recog_model=model.last${n_average}.avg.best
+        opt="--log"
+    fi
+    average_checkpoints.py \
+        ${opt} \
+        --backend ${backend} \
+        --snapshots ${expdir}/results/snapshot.ep.* \
+        --out ${expdir}/results/${recog_model} \
+        --num ${n_average}
+
+fi
+nj=16
+
+pids=() # initialize pids
+for rtask in ${recog_set}; do
+(
+    decode_dir=decode_${rtask}_${recog_model}_$(basename ${decode_config%.*})_${lmtag}
+    feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}
+
+    # split data
+    splitjson.py --parts ${nj} ${feat_recog_dir}/data_${bpemode}${nbpe}.json
+
+    #### use CPU for decoding
+    ngpu=0
+
+    # set batchsize 0 to disable batch decoding
+    ${decode_cmd} JOB=1:${nj} ${expdir}/${decode_dir}/log/decode.JOB.log \
+        asr_recog.py \
+        --config ${decode_config} \
+        --ngpu ${ngpu} \
+        --backend ${backend} \
+        --batchsize 0 \
+        --recog-json ${feat_recog_dir}/split${nj}utt/data_${bpemode}${nbpe}.JOB.json \
+        --result-label ${expdir}/${decode_dir}/data.JOB.json \
+        --model ${expdir}/results/${recog_model}  \
+        --rnnlm ${lmexpdir}/${lang_model}
+
+    score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel}.model --wer true ${expdir}/${decode_dir} ${dict}
+
+) &
+pids+=($!) # store background pids
+done
+i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
+[ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
+echo "Finished"
