@@ -71,12 +71,10 @@ bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 
 expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
-mkdir -p ${expdir}
 
 
 lmexpname=train_rnnlm_pytorch_lm_transformer_cosine_batchsize32_lr1e-4_layer16_unigram5000_ngpu4
 lmexpdir=/blob/v-jinx/checkpoint_asr_nas/exp/${lmexpname}
-mkdir -p ${lmexpdir}
 lm_n_average=6               # the number of languge models to be averaged
 use_lm_valbest_average=false # if true, the validation `lm_n_average`-best language models will be averaged.
 
@@ -143,7 +141,8 @@ for rtask in ${recog_set}; do
         --recog-json ${feat_recog_dir}/split${nj}utt/data_${bpemode}${nbpe}.JOB.json \
         --result-label ${expdir}/${decode_dir}/data.JOB.json \
         --model ${expdir}/results/${recog_model}  \
-        --rnnlm ${lmexpdir}/${lang_model}
+        --rnnlm ${lmexpdir}/${lang_model} \
+        --api v2
 
     score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel}.model --wer true ${expdir}/${decode_dir} ${dict}
 
