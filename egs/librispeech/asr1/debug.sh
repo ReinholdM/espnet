@@ -13,8 +13,7 @@ verbose=0      # verbose option
 
 # feature configuration
 do_delta=false
-
-preprocess_config=conf/specaug.yaml
+preprocess_config=  # use conf/specaug.yaml for data augmentation
 train_config=conf/train.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
@@ -39,17 +38,13 @@ datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
 
-#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
-resume=
-
-
 
 # bpemode (unigram or bpe)
 nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh" # tag for managing experiments.
+tag="lh_nospec" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
@@ -69,6 +64,10 @@ feat_dt_dir=${dumpdir}/${train_dev}/delta${do_delta}
 dict=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 
+
+
+#resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec/results/model.loss.best       # Resume the training from snapshot
+resume=
 
 expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
