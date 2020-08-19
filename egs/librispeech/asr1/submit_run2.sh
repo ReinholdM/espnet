@@ -140,7 +140,7 @@ echo ${feat_tr_dir}
 echo ${feat_dt_dir}
 
 ${cuda_cmd} --gpu ${ngpu} ${expdir}/train.log \
-    asr_train_custom.py \
+    asr_train.py \
     --config ${train_config} \
     --preprocess-conf ${preprocess_config} \
     --ngpu ${ngpu} \
