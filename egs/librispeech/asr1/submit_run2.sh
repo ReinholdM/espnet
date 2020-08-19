@@ -58,7 +58,7 @@ verbose=0      # verbose option
 
 # feature configuration
 do_delta=false
-preprocess_config=conf/no_preprocess.yaml  # use conf/specaug.yaml for data augmentation
+preprocess_config=  # use conf/specaug.yaml for data augmentation
 train_config=conf/train.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
