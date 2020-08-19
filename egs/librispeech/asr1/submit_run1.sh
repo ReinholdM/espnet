@@ -84,7 +84,7 @@ datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
 
-resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
+#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
 
 
 
