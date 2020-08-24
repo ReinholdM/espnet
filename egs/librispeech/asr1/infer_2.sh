@@ -1,3 +1,4 @@
+
 . ./path.sh || exit 1;
 . ./cmd.sh || exit 1;
 
@@ -37,6 +38,8 @@ use_valbest_average=true     # if true, the validation `n_average`-best ASR mode
 datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
+
+resume=
 
 
 # bpemode (unigram or bpe)
