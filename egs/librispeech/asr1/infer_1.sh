@@ -100,6 +100,26 @@ echo ${feat_tr_dir}
 echo ${feat_dt_dir}
 
 
+if [[ $(get_yaml.py ${train_config} model-module) = *transformer* ]]; then
+    # Average ASR models
+    if ${use_valbest_average}; then
+        recog_model=model.val${n_average}.avg.best
+        opt="--log ${expdir}/results/log"
+    else
+        recog_model=model.last${n_average}.avg.best
+        opt="--log"
+    fi
+
+    average_checkpoints.py \
+            ${opt} \
+            --backend ${backend} \
+            --snapshots ${expdir}/results/snapshot.ep.* \
+            --out ${expdir}/results/${recog_model} \
+            --num ${n_average}
+
+fi
+
+
 pids=() # initialize pids
 for rtask in ${recog_set}; do
 (
