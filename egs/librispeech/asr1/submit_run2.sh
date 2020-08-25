@@ -111,7 +111,7 @@ bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 
 
 
-resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec/results/model.loss.best       # Resume the training from snapshot
+resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec/results/snapshot.ep.78       # Resume the training from snapshot
 #resume=
 
 expname=${train_set}_${backend}_${tag}
