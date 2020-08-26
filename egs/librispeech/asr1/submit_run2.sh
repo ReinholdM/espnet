@@ -110,13 +110,21 @@ dict=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 
 
-
-resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec/results/snapshot.ep.78       # Resume the training from snapshot
-#resume=
-
 expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
 mkdir -p ${expdir}
+
+
+#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
+ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
+snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
+resume=${expdir}/results/${snap_num}
+
+if [ -f ${resume} ]; then
+   resume=${resume}
+else
+   resume=
+fi
 
 echo 'exp_dir'
 echo ${expdir}

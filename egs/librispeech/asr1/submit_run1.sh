@@ -84,10 +84,6 @@ datapredix=/var/storage/shared/msrmt/v-jinx/data/LibriSpeech/espnet
 dumpdir=${datapredix}
 exp_prefix=/blob/v-jinx/checkpoint_lh_asr
 
-#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
-resume=${exp_prefix}/exp/train_960_pytorch_lh/results/snapshot.ep.75
-
-
 
 # bpemode (unigram or bpe)
 nbpe=5000
@@ -118,6 +114,19 @@ bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
 mkdir -p ${expdir}
+
+#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
+ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
+snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
+resume=${expdir}/results/${snap_num}
+
+if [ -f ${resume} ]; then
+   resume=${resume}
+else
+   resume=
+fi
+
+
 
 echo 'exp_dir'
 echo ${expdir}
