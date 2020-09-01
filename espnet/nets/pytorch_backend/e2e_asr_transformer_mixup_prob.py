@@ -125,6 +125,7 @@ class E2E(ASRInterface, torch.nn.Module):
         self.eos = odim - 1
         self.prob = args.prob
         self.is_mixup = False
+        self.is_early_mix = True
         self.eta = 0.5
         self.odim = odim
         self.ignore_id = ignore_id
