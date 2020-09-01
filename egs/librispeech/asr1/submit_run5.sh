@@ -116,14 +116,18 @@ mkdir -p ${expdir}
 
 
 #resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
-ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
-snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
-resume=${expdir}/results/${snap_num}
+if [ -f ${expdir}/results ]; then
 
-if [ -f ${resume} ]; then
-   resume=${resume}
+    ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
+    snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
+    resume=${expdir}/results/${snap_num}
+    if [ -f ${resume} ]; then
+       resume=${resume}
+    else
+       resume=
+    fi
 else
-   resume=
+    resume=
 fi
 
 echo 'exp_dir'
