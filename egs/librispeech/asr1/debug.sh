@@ -1,3 +1,4 @@
+
 . ./path.sh || exit 1;
 . ./cmd.sh || exit 1;
 
@@ -14,7 +15,7 @@ verbose=0      # verbose option
 # feature configuration
 do_delta=false
 preprocess_config=  # use conf/specaug.yaml for data augmentation
-train_config=conf/train_ep.yaml # current default recipe requires 4 gpus.
+train_config=conf/train_prob_mix.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
@@ -44,7 +45,7 @@ nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh_exp3" # tag for managing experiments.
+tag="lh_mix01" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
