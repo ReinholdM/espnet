@@ -14,7 +14,7 @@ verbose=0      # verbose option
 # feature configuration
 do_delta=false
 preprocess_config=  # use conf/specaug.yaml for data augmentation
-train_config=conf/train.yaml # current default recipe requires 4 gpus.
+train_config=conf/train_ep.yaml # current default recipe requires 4 gpus.
                              # if you do not have 4 gpus, please reconfigure the `batch-bins` and `accum-grad` parameters in config.
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
@@ -44,7 +44,7 @@ nbpe=5000
 bpemode=unigram
 
 # exp tag
-tag="lh_nospec" # tag for managing experiments.
+tag="lh_exp3" # tag for managing experiments.
 
 
 # Set bash to 'debug' mode, it will exit on :
@@ -65,13 +65,21 @@ dict=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 bpemodel=${datapredix}/data/lang_char/${train_set}_${bpemode}${nbpe}
 
 
-
-#resume=${exp_prefix}/exp/train_960_pytorch_lh_nospec/results/model.loss.best       # Resume the training from snapshot
-resume=
-
 expname=${train_set}_${backend}_${tag}
 expdir=${exp_prefix}/exp/${expname}
 mkdir -p ${expdir}
+
+
+#resume=${exp_prefix}/exp/train_960_pytorch_lh/results/model.loss.best       # Resume the training from snapshot
+ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
+snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
+resume=${expdir}/results/${snap_num}
+
+if [ -f ${resume} ]; then
+   resume=${resume}
+else
+   resume=
+fi
 
 echo 'exp_dir'
 echo ${expdir}
