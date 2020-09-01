@@ -121,6 +121,11 @@ if [ -f ${expdir}/results ]; then
     ls -l -trl ${expdir}/results | grep snapshot. | tail -1 >s.tmp
     snap_num=$(awk -F ' ' '{print $NF}' s.tmp)
     resume=${expdir}/results/${snap_num}
+    if [ -f ${resume} ]; then
+       resume=${resume}
+    else
+       resume=
+    fi
 else
     resume=
 fi
