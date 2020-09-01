@@ -186,6 +186,13 @@ class CustomUpdater(StandardUpdater):
         optimizer = self.get_optimizer("main")
         epoch = train_iter.epoch
 
+        if epoch<10:
+            self.model.is_early_mix=False
+            # Mixup from scratch
+            #self.model.is_early_mix=True
+        else:
+            self.model.is_early_mix=True
+            
         # Get the next batch (a list of json files)
         batch = train_iter.next()
         # self.iteration += 1 # Increase may result in early report,
