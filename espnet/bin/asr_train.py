@@ -158,6 +158,10 @@ def get_parser(parser=None, required=True):
     parser.add_argument(
         "--lsm-weight", default=0.0, type=float, help="Label smoothing weight"
     )
+    # Mixup prob
+    parser.add_argument(
+        "--prob", default=0.0, type=float, help="Mix prob"
+    )
     # recognition options to compute CER/WER
     parser.add_argument(
         "--report-cer",
