@@ -29,7 +29,7 @@ from espnet.nets.pytorch_backend.transformer.mask import target_mask
 from espnet.nets.pytorch_backend.transformer.plot import PlotAttentionReport
 from espnet.nets.scorers.ctc import CTCPrefixScorer
 #Modified by lhmeng
-from espnet.nets.alignme.split_wsj import get_mid_len_v2
+#from espnet.nets.alignme.split_wsj import get_mid_len_v2
 from espnet.nets.pytorch_backend.nets_utils import pad_list
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
