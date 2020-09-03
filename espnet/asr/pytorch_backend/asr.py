@@ -187,7 +187,7 @@ class CustomUpdater(StandardUpdater):
         epoch = train_iter.epoch
 
         if epoch<10:
-            self.model.is_early_mix=False
+            self.model.is_early_mix=True
             # Mixup from scratch
             #self.model.is_early_mix=True
         else:
