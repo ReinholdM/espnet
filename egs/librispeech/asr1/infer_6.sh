@@ -90,7 +90,6 @@ echo ${debugmode}
 echo ${expdir}
 echo ${dict}
 echo ${verbose}
-echo ${resume}
 echo ${bpemode}
 echo ${nbpe}
 echo ${feat_tr_dir}
